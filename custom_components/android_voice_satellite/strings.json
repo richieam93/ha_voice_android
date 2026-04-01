@@ -4,19 +4,13 @@
       "user": {
         "title": "Add Android Voice Satellite",
         "description": "Enter a friendly name for this Android device.",
-        "data": {"device_name": "Device name"}
+        "data": {
+          "device_name": "Device name"
+        }
       },
       "show_key": {
         "title": "Pairing information",
-        "description": "Enter the following in the Android app:
-
-**WebSocket URL:**
-`{ws_url}`
-
-**API Key:**
-`{api_key}`
-
-Device: **{device_name}**"
+        "description": "Enter the following in the Android app:\n\n**WebSocket URL:**\n`{ws_url}`\n\n**API Key:**\n`{api_key}`\n\nDevice: **{device_name}**"
       }
     }
   },
