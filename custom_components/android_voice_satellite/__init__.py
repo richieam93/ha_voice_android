@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 import logging
+
 from aiohttp import web
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.http import HomeAssistantView
+
 from .connection import ConnectionManager, DeviceConnection
 from .const import DOMAIN, WS_PATH, CONF_DEVICE_ID, CONF_API_KEY, CONF_DEVICE_NAME
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["assist_satellite", "binary_sensor", "button", "media_player", "select", "sensor", "switch"]
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
@@ -18,6 +22,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         hass.http.register_view(AndroidVoiceSatelliteWSView(manager))
         _LOGGER.info("Registered Android Voice Satellite endpoint on %s", WS_PATH)
     return True
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     manager: ConnectionManager = hass.data[DOMAIN]["manager"]
@@ -33,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if ok:
@@ -41,7 +47,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             hass.data[DOMAIN]["manager"].unregister_device(data["connection"].device_id)
     return ok
 
-class AndroidVoiceSatelliteWSView(web.View):
+
+class AndroidVoiceSatelliteWSView(HomeAssistantView):
     url = WS_PATH
     name = "api:android_voice_satellite:ws"
     requires_auth = False
@@ -50,7 +57,7 @@ class AndroidVoiceSatelliteWSView(web.View):
     def __init__(self, manager: ConnectionManager) -> None:
         self._manager = manager
 
-    async def get(self, request: web.Request) -> web.WebSocketResponse:
+    async def get(self, request: web.Request) -> web.StreamResponse:
         ws = web.WebSocketResponse(heartbeat=30, max_msg_size=4 * 1024 * 1024)
         await ws.prepare(request)
         await self._manager.handle_connection(ws)
