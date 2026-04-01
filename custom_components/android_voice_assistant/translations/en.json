@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Android Voice Assistant",
+        "description": "Set up the integration. The Android app connects automatically via WebSocket.\n\n{info}",
+        "data": {"device_name": "Integration name"}
+      }
+    }
+  }
+}

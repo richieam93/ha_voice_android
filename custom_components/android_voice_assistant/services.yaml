@@ -1,0 +1,12 @@
+send_tts:
+  name: TTS senden
+  description: Sendet eine Text-to-Speech Nachricht an ein Gerät
+start_voice_assistant:
+  name: Sprachassistent starten
+  description: Startet den Sprachassistenten auf dem Gerät
+stop_voice_assistant:
+  name: Sprachassistent stoppen
+  description: Stoppt den Sprachassistenten
+play_sound:
+  name: Sound abspielen
+  description: Spielt einen Sound auf dem Gerät ab
