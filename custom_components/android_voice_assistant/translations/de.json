@@ -4,7 +4,88 @@
       "user": {
         "title": "Android Voice Assistant einrichten",
         "description": "Richte die Integration ein. Die Android-App verbindet sich automatisch über WebSocket mit Home Assistant.",
-        "data": {"device_name": "Name der Integration"}
+        "data": {
+          "device_name": "Name der Integration"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Einstellungen",
+        "menu_options": {
+          "voice_settings": "Sprachassistent",
+          "audio_settings": "Audio",
+          "wake_word_settings": "Wake Word",
+          "tts_stt_settings": "TTS / STT / Pipeline",
+          "timer_alarm_settings": "Timer & Alarm",
+          "ui_theme_settings": "UI-Theme & Farben",
+          "advanced_settings": "Erweitert",
+          "network_settings": "Netzwerk"
+        }
+      },
+      "voice_settings": {
+        "title": "Sprachassistent-Einstellungen",
+        "data": {
+          "voice_enabled": "Sprachassistent aktiviert",
+          "wake_sound_enabled": "Sound bei Wake-Word-Erkennung",
+          "button_sound_enabled": "Sound bei Button-Klick",
+          "continuous_conversation": "Fortlaufendes Gespräch",
+          "vibrate_on_wake_word": "Vibration bei Wake Word",
+          "keep_screen_on_while_listening": "Bildschirm an beim Zuhören",
+          "show_transcript_notification": "Transkriptions-Benachrichtigung anzeigen"
+        }
+      },
+      "audio_settings": {
+        "title": "Audio-Einstellungen",
+        "data": {
+          "volume": "Lautstärke",
+          "mic_gain": "Mikrofon-Verstärkung"
+        }
+      },
+      "wake_word_settings": {
+        "title": "Wake-Word-Einstellungen",
+        "data": {
+          "wake_word_engine": "Wake-Word-Engine",
+          "wake_word_model": "Wake-Word-Modell",
+          "wake_word_sensitivity": "Empfindlichkeit",
+          "wake_word_custom_path": "Pfad zu benutzerdefiniertem Modell"
+        }
+      },
+      "tts_stt_settings": {
+        "title": "TTS / STT / Pipeline",
+        "data": {
+          "stt_engine": "Speech-to-Text Engine",
+          "tts_engine": "Text-to-Speech Engine",
+          "stt_language": "STT-Sprache",
+          "tts_language": "TTS-Sprache"
+        }
+      },
+      "timer_alarm_settings": {
+        "title": "Timer & Alarm",
+        "data": {
+          "alarm_action": "Alarm-Aktion"
+        }
+      },
+      "ui_theme_settings": {
+        "title": "UI-Theme & Farben",
+        "data": {
+          "ui_theme": "Theme"
+        }
+      },
+      "advanced_settings": {
+        "title": "Erweiterte Einstellungen",
+        "data": {
+          "auto_start_on_boot": "Automatischer Start bei Geräte-Boot",
+          "battery_saver_mode": "Batteriesparmodus"
+        }
+      },
+      "network_settings": {
+        "title": "Netzwerk-Einstellungen",
+        "data": {
+          "auto_reconnect": "Automatisch neu verbinden"
+        }
       }
     }
   }
