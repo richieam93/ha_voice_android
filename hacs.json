@@ -1,5 +1,5 @@
 {
-  "name": "android_voice_assistant",
+  "name": "Android Voice Satellite",
   "render_readme": true,
-  "homeassistant": "2023.1.0"
+  "homeassistant": "2025.5.0"
 }

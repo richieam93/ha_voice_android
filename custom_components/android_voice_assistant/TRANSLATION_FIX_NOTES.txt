@@ -1,1 +1,0 @@
-Added missing options.step translations and menu labels for Home Assistant options flow.

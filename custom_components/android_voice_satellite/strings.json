@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Android Voice Satellite",
+        "description": "Enter a friendly name for this Android device.",
+        "data": {"device_name": "Device name"}
+      },
+      "show_key": {
+        "title": "Pairing information",
+        "description": "Enter the following in the Android app:
+
+**WebSocket URL:**
+`{ws_url}`
+
+**API Key:**
+`{api_key}`
+
+Device: **{device_name}**"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Android Voice Satellite Options",
+        "description": "API Key for re-pairing: `{api_key}`"
+      }
+    }
+  }
+}

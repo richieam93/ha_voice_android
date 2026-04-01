@@ -1,8 +1,0 @@
-{
-  "services": {
-    "send_tts": "mdi:text-to-speech",
-    "start_voice_assistant": "mdi:play",
-    "stop_voice_assistant": "mdi:stop",
-    "play_sound": "mdi:speaker"
-  }
-}
