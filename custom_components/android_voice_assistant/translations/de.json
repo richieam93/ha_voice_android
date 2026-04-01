@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Android Voice Assistant einrichten",
-        "description": "Richte die Integration ein. Die Android-App verbindet sich automatisch über WebSocket mit Home Assistant.\n\n{info}",
+        "description": "Richte die Integration ein. Die Android-App verbindet sich automatisch über WebSocket mit Home Assistant.",
         "data": {"device_name": "Name der Integration"}
       }
     }
