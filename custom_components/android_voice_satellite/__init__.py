@@ -4,8 +4,8 @@ import html
 import io
 import logging
 
-import qrcode
-import qrcode.image.svg
+from .vendor import qrcode
+from .vendor.qrcode.image import svg as qrcode_svg
 from aiohttp import web
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -141,7 +141,7 @@ class AndroidVoiceSatellitePairingPageView(HomeAssistantView):
         qr = qrcode.QRCode(border=2, box_size=8)
         qr.add_data(payload)
         qr.make(fit=True)
-        image = qr.make_image(image_factory=qrcode.image.svg.SvgImage)
+        image = qr.make_image(image_factory=qrcode_svg.SvgImage)
         svg_buffer = io.BytesIO()
         image.save(svg_buffer)
         qr_svg = svg_buffer.getvalue().decode("utf-8")
