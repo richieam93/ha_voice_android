@@ -1,31 +1,29 @@
 {
   "config": {
     "step": {
-      "user": {
-        "title": "Add Android Voice Satellite",
-        "description": "Select a device that has already been registered in the Android app.",
-        "data": {
-          "pending_device": "Waiting Android device"
-        }
+      "pair": {
+        "title": "Android-Gerät koppeln",
+        "description": "Öffne auf dem Android-Gerät die App und scanne den lokal erzeugten QR-Code über diese Seite:\\n\\n`{pairing_page_url}`\\n\\nFallback-Payload zum manuellen QR-Erzeugen:\\n`{pairing_payload}`\\n\\nNachdem die App gescannt hat, klicke unten erneut auf Absenden."
       },
-      "no_devices": {
-        "title": "No waiting devices",
-        "description": "Open the Android app first, enter your Home Assistant server URL, scan a long-lived access token QR code, and complete the app registration. Then come back here and add the device."
+      "select": {
+        "title": "Gerät auswählen",
+        "description": "Wähle das gekoppelte Android-Gerät aus."
+      },
+      "init": {
+        "title": "Android Voice Satellite Optionen",
+        "description": "Interner Kopplungsschlüssel: `{api_key}`"
       }
     },
-    "abort": {
-      "already_configured": "This device is already configured.",
-      "no_devices": "No waiting Android devices were found."
-    },
     "error": {
-      "device_not_found": "The selected device is no longer waiting."
+      "no_devices": "Noch kein Gerät gekoppelt. App scannen lassen und erneut absenden.",
+      "device_not_found": "Das gewählte Gerät wurde nicht gefunden."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Android Voice Satellite Options",
-        "description": "Pairing key for re-pairing: `{api_key}`"
+        "title": "Android Voice Satellite Optionen",
+        "description": "Interner Kopplungsschlüssel: `{api_key}`"
       }
     }
   }

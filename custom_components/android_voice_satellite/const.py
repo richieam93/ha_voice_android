@@ -7,6 +7,9 @@ CONF_API_KEY = "api_key"
 CONF_CLIENT_ID = "client_id"
 WS_PATH = "/api/android_voice_satellite/ws"
 REGISTER_PATH = "/api/android_voice_satellite/register"
+PAIR_PATH = "/api/android_voice_satellite/pair"
+PAIRING_PAGE_PATH = "/api/android_voice_satellite/pairing_page/{pair_token}"
+PAIRING_TTL_SECONDS = 300
 
 PHASE_IDLE = 1
 PHASE_WAITING_FOR_COMMAND = 2

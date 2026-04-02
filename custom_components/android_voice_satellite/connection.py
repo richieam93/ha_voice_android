@@ -4,9 +4,11 @@ import asyncio
 import json
 import logging
 import secrets
+import time
 import uuid
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import quote
 
 from aiohttp import web, WSMsgType
 from homeassistant.config_entries import ConfigEntry
@@ -16,6 +18,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from .const import (
     CONF_CLIENT_ID,
     DOMAIN,
+    PAIRING_TTL_SECONDS,
     PHASE_IDLE,
     PHASE_MUTED,
     PHASE_NOT_READY,
@@ -36,6 +39,18 @@ class PendingRegistration:
     app_version: str | None = None
     device_model: str | None = None
     android_version: str | None = None
+    pair_token: str | None = None
+
+
+@dataclass
+class PairingSession:
+    pair_token: str
+    created_at: float
+    expires_at: float
+
+    @property
+    def is_expired(self) -> bool:
+        return time.time() > self.expires_at
 
 
 class DeviceConnection:
@@ -134,12 +149,32 @@ class DeviceConnection:
             yield chunk
 
 
+async def ensure_manager(hass: HomeAssistant) -> "ConnectionManager":
+    hass.data.setdefault(DOMAIN, {})
+    manager = hass.data[DOMAIN].get("manager")
+    if manager is None:
+        manager = ConnectionManager(hass)
+        hass.data[DOMAIN]["manager"] = manager
+        from .__init__ import AndroidVoiceSatellitePairView, AndroidVoiceSatellitePairingPageView, AndroidVoiceSatelliteRegisterView, AndroidVoiceSatelliteWSView
+        hass.http.register_view(AndroidVoiceSatelliteWSView(manager))
+        hass.http.register_view(AndroidVoiceSatelliteRegisterView(manager, hass))
+        hass.http.register_view(AndroidVoiceSatellitePairView(manager, hass))
+        hass.http.register_view(AndroidVoiceSatellitePairingPageView(manager, hass))
+    return manager
+
+
 class ConnectionManager:
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
         self._devices: dict[str, DeviceConnection] = {}
         self._keys: dict[str, str] = {}
         self._pending: dict[str, PendingRegistration] = {}
+        self._pairs: dict[str, PairingSession] = {}
+
+    def _cleanup(self) -> None:
+        now = time.time()
+        self._pairs = {k: v for k, v in self._pairs.items() if v.expires_at > now}
+        self._pending = {k: v for k, v in self._pending.items() if not v.pair_token or v.pair_token in self._pairs}
 
     def register_device(self, device_id: str, api_key: str, connection: DeviceConnection) -> None:
         self._devices[device_id] = connection
@@ -150,10 +185,25 @@ class ConnectionManager:
         if conn:
             self._keys.pop(conn.api_key, None)
 
-    def get_pending_devices(self) -> list[PendingRegistration]:
-        return sorted(self._pending.values(), key=lambda item: item.device_name.lower())
+    def create_pairing_session(self) -> PairingSession:
+        self._cleanup()
+        token = secrets.token_urlsafe(24)
+        session = PairingSession(pair_token=token, created_at=time.time(), expires_at=time.time() + PAIRING_TTL_SECONDS)
+        self._pairs[token] = session
+        return session
 
-    def create_or_update_pending(self, *, client_id: str, device_name: str, app_version: str | None, device_model: str | None, android_version: str | None) -> PendingRegistration:
+    def get_pairing_session(self, pair_token: str) -> PairingSession | None:
+        self._cleanup()
+        return self._pairs.get(pair_token)
+
+    def get_pending_devices(self, pair_token: str | None = None) -> list[PendingRegistration]:
+        self._cleanup()
+        values = list(self._pending.values())
+        if pair_token:
+            values = [item for item in values if item.pair_token == pair_token]
+        return sorted(values, key=lambda item: item.device_name.lower())
+
+    def create_or_update_pending(self, *, client_id: str, device_name: str, app_version: str | None, device_model: str | None, android_version: str | None, pair_token: str | None = None) -> PendingRegistration:
         existing = self._pending.get(client_id)
         if existing is None:
             existing = PendingRegistration(
@@ -164,6 +214,7 @@ class ConnectionManager:
                 app_version=app_version,
                 device_model=device_model,
                 android_version=android_version,
+                pair_token=pair_token,
             )
             self._pending[client_id] = existing
         else:
@@ -171,10 +222,22 @@ class ConnectionManager:
             existing.app_version = app_version
             existing.device_model = device_model
             existing.android_version = android_version
+            if pair_token:
+                existing.pair_token = pair_token
         return existing
 
     def pop_pending(self, client_id: str) -> PendingRegistration | None:
         return self._pending.pop(client_id, None)
+
+    def get_pairing_payload(self, base_url: str, pair_token: str) -> str:
+        return json.dumps({
+            "type": "android_voice_satellite_pair",
+            "base_url": base_url,
+            "pair_token": pair_token,
+        }, separators=(",", ":"))
+
+    def get_pairing_page_url(self, base_url: str, pair_token: str) -> str:
+        return f"{base_url}/api/android_voice_satellite/pairing_page/{quote(pair_token, safe='')}"
 
     async def handle_connection(self, ws: web.WebSocketResponse) -> None:
         conn: DeviceConnection | None = None
