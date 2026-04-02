@@ -3,14 +3,40 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import secrets
+import uuid
+from dataclasses import dataclass
 from typing import Any
+
 from aiohttp import web, WSMsgType
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from .const import DOMAIN, PHASE_IDLE, PHASE_MUTED, PHASE_NOT_READY, SIGNAL_DEVICE_STATE, SIGNAL_DEVICE_CONNECTED, SIGNAL_DEVICE_DISCONNECTED
+
+from .const import (
+    CONF_CLIENT_ID,
+    DOMAIN,
+    PHASE_IDLE,
+    PHASE_MUTED,
+    PHASE_NOT_READY,
+    SIGNAL_DEVICE_CONNECTED,
+    SIGNAL_DEVICE_DISCONNECTED,
+    SIGNAL_DEVICE_STATE,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@dataclass
+class PendingRegistration:
+    client_id: str
+    device_id: str
+    api_key: str
+    device_name: str
+    app_version: str | None = None
+    device_model: str | None = None
+    android_version: str | None = None
+
 
 class DeviceConnection:
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, device_id: str, api_key: str, device_name: str) -> None:
@@ -19,6 +45,7 @@ class DeviceConnection:
         self.device_id = device_id
         self.api_key = api_key
         self.device_name = device_name
+        self.client_id = entry.data.get(CONF_CLIENT_ID)
         self._ws: web.WebSocketResponse | None = None
         self.audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue()
         self.announcement_done_event = asyncio.Event()
@@ -106,11 +133,13 @@ class DeviceConnection:
                 return
             yield chunk
 
+
 class ConnectionManager:
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
         self._devices: dict[str, DeviceConnection] = {}
         self._keys: dict[str, str] = {}
+        self._pending: dict[str, PendingRegistration] = {}
 
     def register_device(self, device_id: str, api_key: str, connection: DeviceConnection) -> None:
         self._devices[device_id] = connection
@@ -120,6 +149,32 @@ class ConnectionManager:
         conn = self._devices.pop(device_id, None)
         if conn:
             self._keys.pop(conn.api_key, None)
+
+    def get_pending_devices(self) -> list[PendingRegistration]:
+        return sorted(self._pending.values(), key=lambda item: item.device_name.lower())
+
+    def create_or_update_pending(self, *, client_id: str, device_name: str, app_version: str | None, device_model: str | None, android_version: str | None) -> PendingRegistration:
+        existing = self._pending.get(client_id)
+        if existing is None:
+            existing = PendingRegistration(
+                client_id=client_id,
+                device_id=uuid.uuid4().hex[:12],
+                api_key=secrets.token_hex(32),
+                device_name=device_name,
+                app_version=app_version,
+                device_model=device_model,
+                android_version=android_version,
+            )
+            self._pending[client_id] = existing
+        else:
+            existing.device_name = device_name
+            existing.app_version = app_version
+            existing.device_model = device_model
+            existing.android_version = android_version
+        return existing
+
+    def pop_pending(self, client_id: str) -> PendingRegistration | None:
+        return self._pending.pop(client_id, None)
 
     async def handle_connection(self, ws: web.WebSocketResponse) -> None:
         conn: DeviceConnection | None = None

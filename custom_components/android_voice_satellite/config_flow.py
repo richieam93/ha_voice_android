@@ -1,55 +1,52 @@
 from __future__ import annotations
 
-import secrets
-import uuid
-
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 
-from .const import DOMAIN, CONF_DEVICE_NAME, CONF_DEVICE_ID, CONF_API_KEY
+from .const import CONF_API_KEY, CONF_CLIENT_ID, CONF_DEVICE_ID, CONF_DEVICE_NAME, DOMAIN
 
 
 class AndroidVoiceSatelliteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
-        if user_input is not None:
-            self._device_name = user_input[CONF_DEVICE_NAME].strip()
-            self._device_id = uuid.uuid4().hex[:12]
-            custom_key = (user_input.get(CONF_API_KEY) or '').strip()
-            self._api_key = custom_key or secrets.token_hex(32)
-            await self.async_set_unique_id(self._device_id)
-            self._abort_if_unique_id_configured()
-            return await self.async_step_show_key()
-        return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_DEVICE_NAME, default="Android Satellite"): str,
-                vol.Optional(CONF_API_KEY, default=""): str,
-            }),
-        )
+        manager = self.hass.data[DOMAIN]["manager"]
+        pending = manager.get_pending_devices()
 
-    async def async_step_show_key(self, user_input=None):
         if user_input is not None:
+            client_id = user_input["pending_device"]
+            item = manager.pop_pending(client_id)
+            if item is None:
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=vol.Schema({vol.Required("pending_device"): vol.In({})}),
+                    errors={"base": "device_not_found"},
+                )
+
+            await self.async_set_unique_id(item.device_id)
+            self._abort_if_unique_id_configured()
             return self.async_create_entry(
-                title=self._device_name,
+                title=item.device_name,
                 data={
-                    CONF_DEVICE_NAME: self._device_name,
-                    CONF_DEVICE_ID: self._device_id,
-                    CONF_API_KEY: self._api_key,
+                    CONF_DEVICE_NAME: item.device_name,
+                    CONF_DEVICE_ID: item.device_id,
+                    CONF_API_KEY: item.api_key,
+                    CONF_CLIENT_ID: item.client_id,
                 },
             )
-        base = self.hass.config.external_url or self.hass.config.internal_url or "http://homeassistant.local:8123"
+
+        if not pending:
+            return self.async_show_form(step_id="no_devices", data_schema=vol.Schema({}))
+
+        options = {item.client_id: f"{item.device_name} ({item.device_model or 'Android'})" for item in pending}
         return self.async_show_form(
-            step_id="show_key",
-            data_schema=vol.Schema({}),
-            description_placeholders={
-                "device_name": self._device_name,
-                "api_key": self._api_key,
-                "ws_url": f"{base}/api/android_voice_satellite/ws",
-            },
+            step_id="user",
+            data_schema=vol.Schema({vol.Required("pending_device"): vol.In(options)}),
         )
+
+    async def async_step_no_devices(self, user_input=None):
+        return self.async_abort(reason="no_devices")
 
     @staticmethod
     @callback

@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.http import HomeAssistantView
 
 from .connection import ConnectionManager, DeviceConnection
-from .const import DOMAIN, WS_PATH, CONF_DEVICE_ID, CONF_API_KEY, CONF_DEVICE_NAME
+from .const import CONF_API_KEY, CONF_DEVICE_ID, CONF_DEVICE_NAME, DOMAIN, REGISTER_PATH, WS_PATH
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["assist_satellite", "binary_sensor", "button", "media_player", "select", "sensor", "switch"]
@@ -20,7 +20,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         manager = ConnectionManager(hass)
         hass.data[DOMAIN]["manager"] = manager
         hass.http.register_view(AndroidVoiceSatelliteWSView(manager))
-        _LOGGER.info("Registered Android Voice Satellite endpoint on %s", WS_PATH)
+        hass.http.register_view(AndroidVoiceSatelliteRegisterView(manager, hass))
+        _LOGGER.info("Registered Android Voice Satellite endpoints on %s and %s", WS_PATH, REGISTER_PATH)
     return True
 
 
@@ -62,3 +63,39 @@ class AndroidVoiceSatelliteWSView(HomeAssistantView):
         await ws.prepare(request)
         await self._manager.handle_connection(ws)
         return ws
+
+
+class AndroidVoiceSatelliteRegisterView(HomeAssistantView):
+    url = REGISTER_PATH
+    name = "api:android_voice_satellite:register"
+    requires_auth = True
+    cors_allowed = True
+
+    def __init__(self, manager: ConnectionManager, hass: HomeAssistant) -> None:
+        self._manager = manager
+        self._hass = hass
+
+    async def post(self, request: web.Request) -> web.Response:
+        payload = await request.json()
+        client_id = str(payload.get("client_id", "")).strip()
+        device_name = str(payload.get("device_name", "")).strip() or "Android Satellite"
+        if not client_id:
+            return self.json({"error": "missing_client_id"}, status_code=400)
+
+        pending = self._manager.create_or_update_pending(
+            client_id=client_id,
+            device_name=device_name,
+            app_version=payload.get("app_version"),
+            device_model=payload.get("device_model"),
+            android_version=payload.get("android_version"),
+        )
+        base = self._hass.config.external_url or self._hass.config.internal_url or "http://homeassistant.local:8123"
+        return self.json(
+            {
+                "status": "pending",
+                "device_id": pending.device_id,
+                "device_name": pending.device_name,
+                "api_key": pending.api_key,
+                "ws_url": f"{base}{WS_PATH}",
+            }
+        )

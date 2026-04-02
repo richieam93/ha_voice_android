@@ -4,7 +4,9 @@ DOMAIN = "android_voice_satellite"
 CONF_DEVICE_NAME = "device_name"
 CONF_DEVICE_ID = "device_id"
 CONF_API_KEY = "api_key"
+CONF_CLIENT_ID = "client_id"
 WS_PATH = "/api/android_voice_satellite/ws"
+REGISTER_PATH = "/api/android_voice_satellite/register"
 
 PHASE_IDLE = 1
 PHASE_WAITING_FOR_COMMAND = 2

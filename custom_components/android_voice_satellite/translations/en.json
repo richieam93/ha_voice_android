@@ -3,31 +3,29 @@
     "step": {
       "user": {
         "title": "Add Android Voice Satellite",
-        "description": "Enter a friendly name and optionally your own pairing key.",
+        "description": "Select a device that has already been registered in the Android app.",
         "data": {
-          "device_name": "Device name",
-          "api_key": "Custom API key (optional)"
+          "pending_device": "Waiting Android device"
         }
       },
-      "show_key": {
-        "title": "Pairing information",
-        "description": "Enter the following in the Android app:
-
-**WebSocket URL:**
-`{ws_url}`
-
-**API Key:**
-`{api_key}`
-
-Device: **{device_name}**"
+      "no_devices": {
+        "title": "No waiting devices",
+        "description": "Open the Android app first, enter your Home Assistant server URL, scan a long-lived access token QR code, and complete the app registration. Then come back here and add the device."
       }
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "no_devices": "No waiting Android devices were found."
+    },
+    "error": {
+      "device_not_found": "The selected device is no longer waiting."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Android Voice Satellite Options",
-        "description": "API Key for re-pairing: `{api_key}`"
+        "description": "Pairing key for re-pairing: `{api_key}`"
       }
     }
   }
