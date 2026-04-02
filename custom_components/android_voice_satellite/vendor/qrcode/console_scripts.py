@@ -14,7 +14,7 @@ from collections.abc import Iterable
 from importlib import metadata
 
 import qrcode
-from qrcode.image.base import BaseImage, DrawerAliases
+from qrcode_image_base import BaseImage, DrawerAliases
 
 # The next block is added to get the terminal to display properly on MS platforms
 if sys.platform.startswith(("win", "cygwin")):  # pragma: no cover

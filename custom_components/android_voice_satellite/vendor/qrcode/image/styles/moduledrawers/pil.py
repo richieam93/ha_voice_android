@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
 from PIL import Image, ImageDraw
-from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
+from .styles.moduledrawers.base import QRModuleDrawer
 
 if TYPE_CHECKING:
-    from qrcode.image.styledpil import StyledPilImage
-    from qrcode.main import ActiveWithNeighbors
+    from ...styledpil import StyledPilImage
+    from .main import ActiveWithNeighbors
 
 # When drawing antialiased things, make them bigger and then shrink them down
 # to size after the geometry has been drawn.

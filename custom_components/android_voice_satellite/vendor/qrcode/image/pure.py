@@ -1,7 +1,7 @@
 from itertools import chain
 
-from qrcode.compat.png import PngWriter
-from qrcode.image.base import BaseImage
+from ..compat.png import PngWriter
+from qrcode_image_base import BaseImage
 
 
 class PyPNGImage(BaseImage):

@@ -2,7 +2,7 @@ import abc
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from qrcode.image.base import BaseImage
+    from qrcode_image_base import BaseImage
 
 
 class QRModuleDrawer(abc.ABC):

@@ -3,8 +3,11 @@ from __future__ import annotations
 import html
 import io
 import logging
+import importlib
+import sys
 
-from .vendor import qrcode
+qrcode = importlib.import_module(f"{__package__}.vendor.qrcode")
+sys.modules.setdefault("qrcode", qrcode)
 from .vendor.qrcode.image import svg as qrcode_svg
 from aiohttp import web
 from homeassistant.config_entries import ConfigEntry

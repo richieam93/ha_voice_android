@@ -2,11 +2,11 @@ import abc
 from decimal import Decimal
 from typing import TYPE_CHECKING, NamedTuple
 
-from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
-from qrcode.compat.etree import ET
+from .styles.moduledrawers.base import QRModuleDrawer
+from ..compat.etree import ET
 
 if TYPE_CHECKING:
-    from qrcode.image.svg import SvgFragmentImage, SvgPathImage
+    from ...svg import SvgFragmentImage, SvgPathImage
 
 ANTIALIASING_FACTOR = 4
 

@@ -1,10 +1,10 @@
 import abc
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
+from .styles.moduledrawers.base import QRModuleDrawer
 
 if TYPE_CHECKING:
-    from qrcode.main import ActiveWithNeighbors, QRCode
+    from .main import ActiveWithNeighbors, QRCode
 
 
 DrawerAliases = dict[str, tuple[type[QRModuleDrawer], dict[str, Any]]]

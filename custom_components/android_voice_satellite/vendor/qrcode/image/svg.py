@@ -2,13 +2,13 @@ import decimal
 from decimal import Decimal
 from typing import Optional, Union, overload, Literal
 
-import qrcode.image.base
-from qrcode.compat.etree import ET
-from qrcode.image.styles.moduledrawers import svg as svg_drawers
-from qrcode.image.styles.moduledrawers.base import QRModuleDrawer
+from .image import base as qrcode_image_base
+from ..compat.etree import ET
+from .styles.moduledrawers import svg as svg_drawers
+from .styles.moduledrawers.base import QRModuleDrawer
 
 
-class SvgFragmentImage(qrcode.image.base.BaseImageWithDrawer):
+class SvgFragmentImage(qrcode_image_base.BaseImageWithDrawer):
     """
     SVG image builder
 
@@ -82,7 +82,7 @@ class SvgImage(SvgFragmentImage):
     """
 
     background: Optional[str] = None
-    drawer_aliases: qrcode.image.base.DrawerAliases = {
+    drawer_aliases: qrcode_image_base.DrawerAliases = {
         "circle": (svg_drawers.SvgCircleDrawer, {}),
         "gapped-circle": (svg_drawers.SvgCircleDrawer, {"size_ratio": Decimal(0.8)}),
         "gapped-square": (svg_drawers.SvgSquareDrawer, {"size_ratio": Decimal(0.8)}),

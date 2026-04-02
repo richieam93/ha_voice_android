@@ -1,8 +1,8 @@
-import qrcode.image.base
+from .image import base as qrcode_image_base
 from PIL import Image, ImageDraw
 
 
-class PilImage(qrcode.image.base.BaseImage):
+class PilImage(qrcode_image_base.BaseImage):
     """
     PIL image builder, default format is PNG.
     """

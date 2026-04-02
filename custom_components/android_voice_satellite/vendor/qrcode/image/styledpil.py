@@ -1,10 +1,10 @@
-import qrcode.image.base
+from .image import base as qrcode_image_base
 from PIL import Image
-from qrcode.image.styles.colormasks import QRColorMask, SolidFillColorMask
-from qrcode.image.styles.moduledrawers import SquareModuleDrawer
+from .styles.colormasks import QRColorMask, SolidFillColorMask
+from .styles.moduledrawers import SquareModuleDrawer
 
 
-class StyledPilImage(qrcode.image.base.BaseImageWithDrawer):
+class StyledPilImage(qrcode_image_base.BaseImageWithDrawer):
     """
     Styled PIL image builder, default format is PNG.
 

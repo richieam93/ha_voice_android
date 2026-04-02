@@ -2,7 +2,7 @@ import math
 import re
 
 from qrcode import LUT, base, exceptions
-from qrcode.base import RSBlock
+from .base import RSBlock
 
 # QR encoding modes.
 MODE_NUMBER = 1 << 0

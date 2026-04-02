@@ -11,8 +11,8 @@ from typing import (
 )
 
 from qrcode import constants, exceptions, util
-from qrcode.image.base import BaseImage
-from qrcode.image.pure import PyPNGImage
+from qrcode_image_base import BaseImage
+from .image.pure import PyPNGImage
 
 ModulesType = list[list[Optional[bool]]]
 # Cache modules generated just based on the QR Code version
@@ -361,7 +361,7 @@ class QRCode(Generic[GenericImage]):
         else:
             image_factory = self.image_factory
             if image_factory is None:
-                from qrcode.image.pil import Image, PilImage
+                from .image.pil import Image, PilImage
 
                 # Use PIL by default if available, otherwise use PyPNG.
                 image_factory = PilImage if Image else PyPNGImage
